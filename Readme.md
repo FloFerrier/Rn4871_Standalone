@@ -9,6 +9,7 @@ $ git submodule update --remote --merge
 ## lib
 The target to test is locating on lib folder, you can put yours files directly here or
 use a submodule for having a different repo.
+Modify the lib/CMakeLists.txt for building your own sources.
 ## Use
 VSCode
 * Select your build variant : Test/Debug/Release
