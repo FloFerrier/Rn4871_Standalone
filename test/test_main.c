@@ -1,5 +1,4 @@
 #include "unity.h"
-#include "lib_app.h" /* The unit to be tested. */
 
 /* Is run before every test, put unit init calls here. */
 void setUp (void) {
@@ -11,17 +10,12 @@ void tearDown (void) {
 
 }
 
-void test_switchDataAPI (void) {
-	int a = 1;
-	int b = 2;
-	TEST_ASSERT_EQUAL_INT(0, switchDataAPI (&a, &b));
-	TEST_ASSERT_EQUAL_INT(2, a);
-	TEST_ASSERT_EQUAL_INT(1, b);
-	TEST_ASSERT_EQUAL_INT(-1, switchDataAPI (NULL, NULL));
+void emptyTest(void) {
+	TEST_ASSERT_EQUAL_INT(0, 0);
 }
 
 int main (void) {
 	UNITY_BEGIN();
-	RUN_TEST(test_switchDataAPI); /* Run the test. */
+	RUN_TEST(emptyTest); /* Run the test. */
 	return UNITY_END();
 }

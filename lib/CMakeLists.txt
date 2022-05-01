@@ -1,7 +1,7 @@
 set(SOURCE_FILES
-	./lib_app.c
-	./lib_app.h)
+	# Put yours source and header files here !
+	)
 
-add_library(lib_app STATIC ${SOURCE_FILES})
+add_library(target STATIC ${SOURCE_FILES})
 
-set_target_properties(lib_app PROPERTIES LINK_FLAGS "--coverage")
+set_target_properties(target PROPERTIES LINK_FLAGS "--coverage")
