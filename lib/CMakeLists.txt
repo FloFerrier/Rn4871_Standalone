@@ -1,6 +1,10 @@
 set(SOURCE_FILES
-	# Put yours source and header files here !
-	)
+	rn4871-driver/rn4871_defs.h
+	rn4871-driver/rn4871.c
+	rn4871-driver/rn4871.h
+	rn4871-driver/virtual_module.c
+	rn4871-driver/virtual_module.h
+	rn4871-driver/gatt.h)
 
 add_library(target STATIC ${SOURCE_FILES})
 
