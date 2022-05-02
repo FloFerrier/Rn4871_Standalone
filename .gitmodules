@@ -1,3 +1,6 @@
 [submodule "unity"]
 	path = unity
 	url = git@github.com:ThrowTheSwitch/Unity.git
+[submodule "lib/rn4871-driver"]
+	path = lib/rn4871-driver
+	url = git@github.com:FloFerrier/rn4871-driver.git
