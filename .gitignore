@@ -4,6 +4,9 @@
 # Ignore Unity folder
 unity/*
 
+# Ignore lib folder
+lib/* 
+
 # Ignore Build generated files
 build/
 test/libapp_test
