@@ -9,6 +9,7 @@ The first step is to fetch RN4871-driver from Github
 $ git submodule update
 ```
 ## Organization
+```bash
 .
 ├── bin
 ├── build
@@ -30,6 +31,7 @@ $ git submodule update
 └── test
     ├── CMakeLists.txt
     └── test_main.c
+```
 ## Utilization
 * Select your build variant : Test/Debug/Release
 * Build your selected target
