@@ -1,12 +1,17 @@
 set(TEST_SOURCES
 	test_main.c)
 
+include(FetchContent)
+# Fetch Unity from GitHub
+FetchContent_Declare(unity GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git GIT_TAG v2.5.2)
+FetchContent_MakeAvailable(unity)
+
 # Set if you want use virtual module (true or false)
 set(VIRTUAL_MODULE true)
 
 add_executable(test_target ${TEST_SOURCES})
 
-set_target_properties(test_target PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set_target_properties(test_target PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BINARY_DIR}")
 
 add_test(NAME test_target COMMAND test_target)
 

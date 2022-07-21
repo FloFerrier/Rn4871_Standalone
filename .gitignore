@@ -1,31 +1,11 @@
 # Ingone Vscode files
 .vscode/
 
-# Ignore Unity folder
-unity/*
+# Ignore Bin folder
+bin/*
 
 # Ignore lib folder
 lib/* 
 
 # Ignore Build generated files
 build/
-test/libapp_test
-src/libapp_lib.a
-src/release_run
-# Ignore CMake genereated files
-CMakeCache.txt
-CMakeFiles/
-CTestTestfile.cmake
-DartConfiguration.tcl
-Makefile
-cmake_install.cmake
-test/CMakeCache.txt
-test/CMakeFiles
-test/CTestTestfile.cmake
-test/Makefile
-test/cmake_install.cmake
-src/CMakeCache.txt
-src/CMakeFiles
-src/CTestTestfile.cmake
-src/Makefile
-src/cmake_install.cmake
