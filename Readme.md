@@ -6,7 +6,7 @@ VSCode IDE with CMake extension.
 Unity is the framework used for testing.
 The first step is to fetch RN4871-driver from Github
 ```bash
-$ git submodule update
+$ git submodule update --init
 ```
 ## Organization
 ```bash
@@ -32,7 +32,11 @@ $ git submodule update
     ├── CMakeLists.txt
     └── test_main.c
 ```
-## Utilization
+## Startup
 * Select your build variant : Test/Debug/Release
 * Build your selected target
 * Run the selected target on the terminal
+
+## Roadmap
+- Transparent UART
+- GATT

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 project(framework-test-c)
 
 set(CMAKE_C_STANDARD 99)
@@ -8,8 +8,8 @@ set(SOURCE_DIR  ${CMAKE_SOURCE_DIR}/src)
 set(TEST_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/test)
 set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-include_directories(${LIBRARY_DIR})
-add_subdirectory(${LIBRARY_DIR})
+include_directories(${LIBRARY_DIR}/rn4871-driver)
+add_subdirectory(${LIBRARY_DIR}/rn4871-driver)
 
 message(INFO " CMAKE_BUILD_TYPE= ${CMAKE_BUILD_TYPE}")
 

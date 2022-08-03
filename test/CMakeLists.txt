@@ -15,10 +15,10 @@ set_target_properties(test_target PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BINARY_
 
 add_test(NAME test_target COMMAND test_target)
 
-target_link_libraries(test_target PUBLIC target unity)
+target_link_libraries(test_target PUBLIC librn4871-driver unity)
 
-set_target_properties(target PROPERTIES COMPILE_FLAGS "--coverage")
-set_target_properties(target PROPERTIES LINK_FLAGS "--coverage")
+set_target_properties(librn4871-driver PROPERTIES COMPILE_FLAGS "--coverage")
+set_target_properties(librn4871-driver PROPERTIES LINK_FLAGS "--coverage")
 
 set_target_properties(test_target PROPERTIES COMPILE_FLAGS "--coverage")
 set_target_properties(test_target PROPERTIES LINK_FLAGS "--coverage")
