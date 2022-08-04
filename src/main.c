@@ -8,8 +8,11 @@
 #include <errno.h>
 #include <termios.h>
 #include <unistd.h>
+#include <assert.h>
 
 #define BUFFER_UART_MAX_LEN (255)
+
+#define FILENAME_SERIAL_PORT "/dev/ttyUSB0"
 
 int serialPort;
 
@@ -18,9 +21,8 @@ uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
 void rn4871DelayMsAPI(uint32_t delay);
 
 uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
-	/* Check input buffer */
-    if(NULL == pBuffer || NULL == bufferSize)
-		return CODE_RETURN_UART_FAIL;
+    assert((NULL != pBuffer) || (NULL != bufferSize));
+	printf("[TX:%d] %s\r\n", *bufferSize, pBuffer);
 
 	if(VIRTUAL_MODULE) {
 		uartRxVirtualModule(pBuffer, *bufferSize);
@@ -29,18 +31,15 @@ uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
 		ssize_t sizeWrite = write(serialPort, pBuffer, *bufferSize);
 		if(0 >= sizeWrite) {
 			printf("Fail to send data : [%d] %s\r\n", *bufferSize, pBuffer);
+			return CODE_RETURN_UART_FAIL;
 		}
 	}
-	/* Debug display */
-	printf("[TX:%d] %s\r\n", *bufferSize, pBuffer);
 
     return CODE_RETURN_SUCCESS;
 }
 
 uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
-	/* Check input buffer */
-    if(NULL == pBuffer || NULL == bufferSize)
-		return CODE_RETURN_UART_FAIL;
+    assert((NULL != pBuffer) || (NULL != bufferSize));
 
 	memset(pBuffer, '\0', BUFFER_UART_MAX_LEN);
 	if(VIRTUAL_MODULE) {
@@ -52,11 +51,9 @@ uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
 
 	if (0 >= *bufferSize) {
       	printf("Fail to receive data: %s\r\n", strerror(errno));
+		return CODE_RETURN_UART_FAIL;
   	}
-	else {
-		/* Debug display */
-		printf("[RX:%d] %s\r\n", *bufferSize, pBuffer);
-	}
+	printf("[RX:%d] %s\r\n", *bufferSize, pBuffer);
 
     return CODE_RETURN_SUCCESS;
 }
@@ -73,7 +70,7 @@ int main (void) {
 	else {
 		printf("Real module selected !\r\n");
 		printf("Serial port configuration\r\n");
-		serialPort = open("/dev/ttyUSB0", O_RDWR);
+		serialPort = open(FILENAME_SERIAL_PORT, O_RDWR);
 		if(0 >= serialPort) {
 			printf("Fail to open serial port ...\r\n");
 			return -1;
@@ -119,7 +116,7 @@ int main (void) {
 			return -1;
 		}
 
-		printf("Set serial configuration with success !\r\n");
+		printf("Set new serial configuration with success !\r\n");
 	}
 
 	/* RN4871 Usecase */
@@ -127,8 +124,6 @@ int main (void) {
 		.uartTx = rn4871UartTxAPI,
 		.uartRx = rn4871UartRxAPI,
 		.delayMs = rn4871DelayMsAPI,
-		._current_cmd = CMD_NONE,
-		.fsm_state = FSM_STATE_INIT,
 	};
 
 	uint8_t ret = rn4871EnterCommandMode(&dev);
@@ -178,8 +173,20 @@ int main (void) {
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail to reboot module ...%d\r\n", ret);
 	}
+	printf("RN4871 module reboot with success\r\n");
+	printf("Now, you can send data through transparent UART\r\n");
 
-	dev.fsm_state = FSM_STATE_STREAMING;
+	/* Wait connection and streaming by an external device */
+	char *dataToRecv = malloc(sizeof(char)*(255+1));
+	uint16_t dataToRecvLen = 0;
+	while(FSM_STATE_STREAMING != rn4871GetFsmState()) {
+		dev.uartRx(dataToRecv, &dataToRecvLen);
+		char *output;
+		rn4871ResponseProcess(&dev, dataToRecv, output);
+		printf("DEBUG FSM state : %d\r\n", rn4871GetFsmState());
+	}
+	free(dataToRecv);
+
 	char *dataToSend = malloc(sizeof(char)*(255+1));
 	int sizeToSend = snprintf(dataToSend, 255, "Test data to send");
 	if(CODE_RETURN_SUCCESS != rn4871TransparentUartSendData(&dev, dataToSend, sizeToSend)) {
