@@ -40,3 +40,12 @@ $ git submodule update --init
 ## Roadmap
 - Transparent UART
 - GATT
+
+## Utilization
+A RN4871 module can be plug on the desktop with a converter UART/tty.
+Or you can choose to use the virtual module.
+For using the hardware module :
+```bash
+$ sudo apt install picocom
+$ sudo picocom -b 115200 /dev/ttyUSB0
+```
