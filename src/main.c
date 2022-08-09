@@ -19,13 +19,18 @@ int serialPort;
 uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
 uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
 void rn4871DelayMsAPI(uint32_t delay);
+void rn4871LogSenderAPI(char *log, int logLen);
+
+void rn4871LogSenderAPI(char *log, int logLen) {
+	printf("%s", log);
+}
 
 uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
     assert((NULL != pBuffer) || (NULL != bufferSize));
-	printf("[TX:%d] %s\r\n", *bufferSize, pBuffer);
+	//printf("[TX:%d] %s\r\n", *bufferSize, pBuffer);
 
 	if(VIRTUAL_MODULE) {
-		uartRxVirtualModule(pBuffer, *bufferSize);
+		virtualModuleReceiveData(pBuffer, *bufferSize);
 	}
 	else {
 		ssize_t sizeWrite = write(serialPort, pBuffer, *bufferSize);
@@ -43,7 +48,7 @@ uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
 
 	memset(pBuffer, '\0', BUFFER_UART_MAX_LEN);
 	if(VIRTUAL_MODULE) {
-		uartTxVirtualModule(pBuffer, bufferSize);
+		virtualModuleSendData(pBuffer, bufferSize);
 	}
 	else {
 		*bufferSize = read(serialPort, pBuffer, BUFFER_UART_MAX_LEN);
@@ -53,7 +58,7 @@ uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
       	printf("Fail to receive data: %s\r\n", strerror(errno));
 		return CODE_RETURN_UART_FAIL;
   	}
-	printf("[RX:%d] %s\r\n", *bufferSize, pBuffer);
+	//printf("[RX:%d] %s\r\n", *bufferSize, pBuffer);
 
     return CODE_RETURN_SUCCESS;
 }
@@ -129,6 +134,7 @@ int main (void) {
 	uint8_t ret = rn4871EnterCommandMode(&dev);
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail to enter on command mode ...\r\n");
+		close(serialPort);
 		return 0;
 	}
 	printf("RN4871 is on command mode\r\n");
@@ -174,15 +180,40 @@ int main (void) {
 		printf("Fail to reboot module ...%d\r\n", ret);
 	}
 	printf("RN4871 module reboot with success\r\n");
-	printf("Now, you can send data through transparent UART\r\n");
+
+	ret = rn4871EnterCommandMode(&dev);
+	if(CODE_RETURN_SUCCESS != ret) {
+		printf("Fail to enter on command mode ...\r\n");
+		close(serialPort);
+		return 0;
+	}
+	printf("RN4871 is on command mode\r\n");
+	bool modeIsTransparentUart = false;
+	ret = rn4871IsOnTransparentUart(&dev, &modeIsTransparentUart);
+	if(CODE_RETURN_SUCCESS != ret) {
+		printf("Fail on rn4871IsOnTransparentUart function ...\r\n");
+		close(serialPort);
+		return 0;
+	}
+	if(!modeIsTransparentUart) {
+		printf("RN4871 module is not on Transparent Uart mode ...\r\n");
+		close(serialPort);
+		return 0;
+	}
+	ret = rn4871QuitCommandMode(&dev);
+	if(CODE_RETURN_SUCCESS != ret) {
+		printf("Fail to quit on command mode ...\r\n");
+		close(serialPort);
+		return 0;
+	}
 
 	/* Wait connection and streaming by an external device */
 	char *dataToRecv = malloc(sizeof(char)*(255+1));
 	uint16_t dataToRecvLen = 0;
 	while(FSM_STATE_STREAMING != rn4871GetFsmState()) {
 		dev.uartRx(dataToRecv, &dataToRecvLen);
-		char *output;
-		rn4871ResponseProcess(&dev, dataToRecv, output);
+		virtualModuleConnect(&dev);
+		virtualModuleStream(&dev);
 		printf("DEBUG FSM state : %d\r\n", rn4871GetFsmState());
 	}
 	free(dataToRecv);
