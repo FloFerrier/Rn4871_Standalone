@@ -68,236 +68,102 @@ void test_virtualModule(void) {
 	char *expectedOutput = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	uint16_t expectedOutputLen = 0;
 
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "Fake\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "$");
-	uartRxVirtualModule(input, inputLen);
-	uartRxVirtualModule(input, inputLen);
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "CMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "R,1\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\n%cREBOOT%c", '%', '%');
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SF,1\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\n%cREBOOT%c", '%', '%');
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SF,3\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	inputLen = snprintf(input, BUFFER_LEN_MAX, "Fake\r\n");
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
+	inputLen = snprintf(input, BUFFER_LEN_MAX, "R,1\r\n");
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\n%cREBOOT%c", '%', '%');
+	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
+	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
+
+	inputLen = snprintf(input, BUFFER_LEN_MAX, "$");
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "CMD>");
+	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
+	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
+
+	inputLen = snprintf(input, BUFFER_LEN_MAX, "SF,1\r\n");
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\n%cREBOOT%c", '%', '%');
+	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
+	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
+
+	inputLen = snprintf(input, BUFFER_LEN_MAX, "$");
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "CMD>");
+	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
+	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
+
+	inputLen = snprintf(input, BUFFER_LEN_MAX, "V\r\n");
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX,
+		"RN4871 V1.40 7/9/2019 (c)Microship Technology Inc\r\nCMD>");
+	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
+	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
+
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "D\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX,
 		"BTA=001122334455\r\nName=RN4871-VM\r\nConnected=no\r\nAuthen=0\r\nFeatures=0000\r\nServices=80\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "SN,RN4871-Test\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "SS,80\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "SS,C0\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "PZ\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
-	/* UUID correct */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PS,000102030405060708090A0B0C0D0E0F\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
+	inputLen = snprintf(input, BUFFER_LEN_MAX, "---\r\n");
+	virtualModuleReceiveData(input, inputLen);
+	virtualModuleSendData(output, &outputLen);
 	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID too long */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PS,0000102030405060708090A0B0C0D0E0F\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID too short */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PS,102030405060708090A0B0C0D0E0F\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID hexa incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PS,000102030405060Z08090A0B0C0D0E0F\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* too info */
-	/*inputLen = snprintf(input, BUFFER_LEN_MAX, "PS,000102030405060708090A0B0C0D0E0F,00\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);*/
-
-	/* UUID, prop, size correct */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PC,00112233445566778899AABBCCDDEEFF,00,00\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID incorrect but prop, size correct */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PC,ZZ112233445566778899AABBCCDDEEFF,00,00\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID, size correct but prop incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PC,00112233445566778899AABBCCDDEEFF,0000,00\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID, size correct but prop incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PC,00112233445566778899AABBCCDDEEFF,Z0,00\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID, prop correct but size incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PC,00112233445566778899AABBCCDDEEFF,00,0000\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* UUID, size correct but prop incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "PC,00112233445566778899AABBCCDDEEFF,00,Z0\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle, value correct */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHW,1234,AB\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle incorrect and value correct */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHW,Z234,AB\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle correct and value incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHW,1234,ZB\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle incorrect and value correct */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHW,01234,AB\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle correct and value incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHW,1234,00AB\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle correct */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHR,1234\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "%d\r\nCMD>", 12);
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle too long */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHR,001234\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle too short */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHR,0\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
-	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
-	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
-
-	/* Handle incorrect */
-	inputLen = snprintf(input, BUFFER_LEN_MAX, "SHR,123Z\r\n");
-	uartRxVirtualModule(input, inputLen);
-	uartTxVirtualModule(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Err\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
