@@ -49,3 +49,11 @@ For using the hardware module :
 $ sudo apt install picocom
 $ sudo picocom -b 115200 /dev/ttyUSB0
 ```
+
+## Generate HTML page for test coverage
+Build on Test mode and run the following command on the project root (<PROJECT_ROOT>=~/Projects/rn4871-driver-dev):
+```bash
+mkdir test-coverage && cd test-coverage
+geninfo <PROJECT_ROOT>/build/lib/rn4871-driver/CMakeFiles/librn4871-driver.dir -b <PROJECT_ROOT>/build/lib/rn4871-driver -o ./coverage.info
+genhtml coverage.info -o generate-html
+```
