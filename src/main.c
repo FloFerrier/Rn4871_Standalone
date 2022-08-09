@@ -15,6 +15,7 @@
 #define FILENAME_SERIAL_PORT "/dev/ttyUSB0"
 
 int serialPort;
+FILE *log_file;
 
 uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
 uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
@@ -22,7 +23,9 @@ void rn4871DelayMsAPI(uint32_t delay);
 void rn4871LogSenderAPI(char *log, int logLen);
 
 void rn4871LogSenderAPI(char *log, int logLen) {
-	printf("%s", log);
+	if(NULL != log_file) {
+		fprintf(log_file, "%s", log);
+	}
 }
 
 uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
@@ -69,6 +72,12 @@ void rn4871DelayMsAPI(uint32_t delay) {
 
 int main (void) {
 
+	printf("Logs are stored on the file : %s\r\n", LOG_FILE_NAME);
+	log_file = fopen(LOG_FILE_NAME, "w");
+	if(NULL == log_file) {
+		printf("Open log file fail ...\r\n");
+	}
+
 	if(VIRTUAL_MODULE) {
 		printf("Virtual module selected !\r\n");
 	}
@@ -78,12 +87,14 @@ int main (void) {
 		serialPort = open(FILENAME_SERIAL_PORT, O_RDWR);
 		if(0 >= serialPort) {
 			printf("Fail to open serial port ...\r\n");
+			fclose(log_file);
 			return -1;
 		}
 		printf("Serial port open !\r\n");
 		struct termios tty;
 		if(0 != tcgetattr(serialPort, &tty)) {
 			printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+			fclose(log_file);
 			return -1;
 		}
 
@@ -118,6 +129,7 @@ int main (void) {
 
 		if(0 != tcsetattr(serialPort, TCSANOW, &tty)) {
 			printf("Error %i from tcsetattr: %s\r\n", errno, strerror(errno));
+			fclose(log_file);
 			return -1;
 		}
 
@@ -135,6 +147,7 @@ int main (void) {
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail to enter on command mode ...\r\n");
 		close(serialPort);
+		fclose(log_file);
 		return 0;
 	}
 	printf("RN4871 is on command mode\r\n");
@@ -185,6 +198,7 @@ int main (void) {
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail to enter on command mode ...\r\n");
 		close(serialPort);
+		fclose(log_file);
 		return 0;
 	}
 	printf("RN4871 is on command mode\r\n");
@@ -193,17 +207,20 @@ int main (void) {
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail on rn4871IsOnTransparentUart function ...\r\n");
 		close(serialPort);
+		fclose(log_file);
 		return 0;
 	}
 	if(!modeIsTransparentUart) {
 		printf("RN4871 module is not on Transparent Uart mode ...\r\n");
 		close(serialPort);
+		fclose(log_file);
 		return 0;
 	}
 	ret = rn4871QuitCommandMode(&dev);
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail to quit on command mode ...\r\n");
 		close(serialPort);
+		fclose(log_file);
 		return 0;
 	}
 
@@ -229,6 +246,7 @@ int main (void) {
 
 	free(dataToSend);
 	close(serialPort);
+	fclose(log_file);
 	printf("Serial port close with success !\r\n");
 	return 0;
 }

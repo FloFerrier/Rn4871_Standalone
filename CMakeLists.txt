@@ -7,6 +7,7 @@ set(BINARY_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(SOURCE_DIR  ${CMAKE_SOURCE_DIR}/src)
 set(TEST_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/test)
 set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+set(LOGS_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/logs)
 
 include_directories(${LIBRARY_DIR}/rn4871-driver)
 add_subdirectory(${LIBRARY_DIR}/rn4871-driver)
