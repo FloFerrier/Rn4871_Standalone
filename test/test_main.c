@@ -21,7 +21,7 @@ uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
 	//printf("[TX:%d] %s\r\n", *bufferSize, pBuffer);
 
 	if(VIRTUAL_MODULE)
-		uartRxVirtualModule(pBuffer, *bufferSize);
+		virtualModuleReceiveData(pBuffer, *bufferSize);
 	else
 		printf("Real module : To do !\r\n");
 
@@ -33,7 +33,7 @@ uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
 	//printf("[RX:%d] %s\r\n", *bufferSize, pBuffer);
 
 	if(VIRTUAL_MODULE)
-		uartTxVirtualModule(pBuffer, bufferSize);
+		virtualModuleSendData(pBuffer, bufferSize);
 	else
 		printf("Real module : To do !\r\n");
 
@@ -52,6 +52,7 @@ void setUp(void) {
 	test_device->delayMs = rn4871DelayMsAPI;
 	rn4871SetForceFsmState(FSM_STATE_NONE);
 	rn4871SetForceDataMode();
+	virtualModuleSetForceDataMode();
 }
 
 /* Is run after every test, put unit clean-up calls here. */
