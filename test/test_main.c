@@ -1,6 +1,7 @@
 #include "unity.h"
 #include "rn4871.h"
 #include "virtual_module.h"
+#include "logs.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -15,6 +16,11 @@ static struct rn4871_dev_s *test_device;
 uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
 uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
 void rn4871DelayMsAPI(uint32_t delay);
+void rn4871LogSenderAPI(char *log, int logLen);
+
+void rn4871LogSenderAPI(char *log, int logLen) {
+	printf("%s", log);
+}
 
 uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
     assert((NULL != pBuffer) || (NULL != bufferSize));
@@ -287,7 +293,7 @@ void test_rn4871GetFsmState(void) {
 	TEST_ASSERT_EQUAL(FSM_STATE_IDLE, rn4871GetFsmState());
 }
 
-void test_transparentUartMode(void) {
+void test_transparentUartModeScenario1(void) {
 	char *data = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	int dataLen = snprintf(data, BUFFER_LEN_MAX, "Test data to send with transparent UART");
 	char *buffer = malloc(BUFFER_UART_LEN_MAX);
@@ -308,20 +314,23 @@ void test_transparentUartMode(void) {
 	free(data);
 }
 
-void test_gattMode(void) {
+void test_transparentUartModeScenario2(void) {
+	char *data = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	int dataLen = snprintf(data, BUFFER_LEN_MAX, "Test data to send with transparent UART");
 	char *buffer = malloc(BUFFER_UART_LEN_MAX);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
-	char deviceName[] = "test_gatt_mode";
-	int sizeDeviceName = strlen(deviceName);
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetDeviceName(test_device, deviceName, sizeDeviceName));
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871GetDeviceName(test_device, buffer));
-	TEST_ASSERT_EQUAL_STRING(deviceName, buffer);
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871GetFirmwareVersion(test_device, buffer));
-	TEST_ASSERT_EQUAL_STRING("V1.40", buffer);
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetServices(test_device, DEVICE_INFORMATION));
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EraseAllGattServices(test_device));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetServices(test_device, UART_TRANSPARENT));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871RebootModule(test_device));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
+	bool result = false;
+	rn4871IsOnTransparentUart(test_device, &result);
+	TEST_ASSERT_EQUAL_UINT8(true, result);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871QuitCommandMode(test_device));
+	virtualModuleConnect(test_device);
+	virtualModuleStream(test_device);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871TransparentUartSendData(test_device, data, dataLen));
 	free(buffer);
+	free(data);
 }
 
 int main(void) {
@@ -337,9 +346,10 @@ int main(void) {
 	RUN_TEST(test_rn4871GetDeviceName);
 	RUN_TEST(test_rn4871GetServices);
 	RUN_TEST(test_rn4871GetFsmState);
-	//RUN_TEST(test_rn4871IsOnTransparentUart);
-	//RUN_TEST(test_rn4871TransparentUartSendData);
-	//RUN_TEST(test_transparentUartMode);
-	//RUN_TEST(test_gattMode);
+	RUN_TEST(test_rn4871EraseAllGattServices);
+	RUN_TEST(test_rn4871IsOnTransparentUart);
+	RUN_TEST(test_rn4871TransparentUartSendData);
+	RUN_TEST(test_transparentUartModeScenario1);
+	RUN_TEST(test_transparentUartModeScenario2);
 	return UNITY_END();
 }
