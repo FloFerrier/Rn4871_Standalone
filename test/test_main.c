@@ -176,6 +176,15 @@ void test_rn4871EnterCommandMode(void) {
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
 }
 
+void test_rn4871QuitCommandMode(void) {
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871QuitCommandMode(test_device));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871RebootModule(test_device));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871QuitCommandMode(test_device));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871QuitCommandMode(test_device));
+}
+
 void test_rn4871RebootModule(void) {
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871RebootModule(test_device));
 	rn4871EnterCommandMode(test_device);
@@ -232,6 +241,21 @@ void test_rn4871GetServices(void) {
 	rn4871EnterCommandMode(test_device);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871GetServices(test_device, &services));
 	TEST_ASSERT_EQUAL_UINT16(DEVICE_INFORMATION | UART_TRANSPARENT, services);
+}
+
+void test_rn4871IsOnTransparentUart(void) {
+	bool result = false;
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871IsOnTransparentUart(test_device, &result));
+	rn4871EnterCommandMode(test_device);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetServices(test_device, UART_TRANSPARENT));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871IsOnTransparentUart(test_device, &result));
+	TEST_ASSERT_EQUAL_UINT8(result, true);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetServices(test_device, DEVICE_INFORMATION));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871IsOnTransparentUart(test_device, &result));
+	TEST_ASSERT_EQUAL_UINT8(result, false);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetServices(test_device, DEVICE_INFORMATION | UART_TRANSPARENT));
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871IsOnTransparentUart(test_device, &result));
+	TEST_ASSERT_EQUAL_UINT8(result, true);
 }
 
 void test_rn4871EraseAllGattServices(void) {
@@ -305,6 +329,7 @@ int main(void) {
 	RUN_TEST(test_virtualModule);
 	RUN_TEST(test_rn4871EnterCommandMode);
 	RUN_TEST(test_rn4871RebootModule);
+	RUN_TEST(test_rn4871QuitCommandMode);
 	RUN_TEST(test_rn4871GetFirmwareVersion);
 	RUN_TEST(test_rn4871GetMacAddress);
 	RUN_TEST(test_rn4871SetServices);
@@ -312,8 +337,9 @@ int main(void) {
 	RUN_TEST(test_rn4871GetDeviceName);
 	RUN_TEST(test_rn4871GetServices);
 	RUN_TEST(test_rn4871GetFsmState);
-	RUN_TEST(test_rn4871TransparentUartSendData);
-	RUN_TEST(test_transparentUartMode);
+	//RUN_TEST(test_rn4871IsOnTransparentUart);
+	//RUN_TEST(test_rn4871TransparentUartSendData);
+	//RUN_TEST(test_transparentUartMode);
 	//RUN_TEST(test_gattMode);
 	return UNITY_END();
 }
