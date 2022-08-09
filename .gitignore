@@ -9,3 +9,9 @@ lib/*
 
 # Ignore Build generated files
 build/
+
+# Ignore test-coverage generated files
+test-coverage/*
+
+# Ignore logs generated files
+logs/*
