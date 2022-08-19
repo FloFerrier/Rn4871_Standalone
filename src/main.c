@@ -17,8 +17,8 @@
 int serialPort;
 FILE *log_file;
 
-uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
-uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
+uint8_t rn4871UartTxAPI(char *pBuffer, uint16_t *bufferSize);
+uint8_t rn4871UartRxAPI(char *pBuffer, uint16_t *bufferSize);
 void rn4871DelayMsAPI(uint32_t delay);
 void rn4871LogSenderAPI(char *log, int logLen);
 
@@ -28,12 +28,12 @@ void rn4871LogSenderAPI(char *log, int logLen) {
 	}
 }
 
-uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
+uint8_t rn4871UartTxAPI(char *pBuffer, uint16_t *bufferSize) {
     assert((NULL != pBuffer) || (NULL != bufferSize));
 	//printf("[TX:%d] %s\r\n", *bufferSize, pBuffer);
 
 	if(VIRTUAL_MODULE) {
-		virtualModuleReceiveData(pBuffer, *bufferSize);
+		virtualModuleReceiveData((char*)pBuffer, *bufferSize);
 	}
 	else {
 		ssize_t sizeWrite = write(serialPort, pBuffer, *bufferSize);
@@ -46,12 +46,12 @@ uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
     return CODE_RETURN_SUCCESS;
 }
 
-uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
+uint8_t rn4871UartRxAPI(char *pBuffer, uint16_t *bufferSize) {
     assert((NULL != pBuffer) || (NULL != bufferSize));
 
 	memset(pBuffer, '\0', BUFFER_UART_MAX_LEN);
 	if(VIRTUAL_MODULE) {
-		virtualModuleSendData(pBuffer, bufferSize);
+		virtualModuleSendData((char*)pBuffer, bufferSize);
 	}
 	else {
 		*bufferSize = read(serialPort, pBuffer, BUFFER_UART_MAX_LEN);

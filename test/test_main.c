@@ -13,8 +13,8 @@
 
 static struct rn4871_dev_s *test_device;
 
-uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
-uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize);
+uint8_t rn4871UartTxAPI(char *pBuffer, uint16_t *bufferSize);
+uint8_t rn4871UartRxAPI(char *pBuffer, uint16_t *bufferSize);
 void rn4871DelayMsAPI(uint32_t delay);
 void rn4871LogSenderAPI(char *log, int logLen);
 
@@ -22,7 +22,7 @@ void rn4871LogSenderAPI(char *log, int logLen) {
 	printf("%s", log);
 }
 
-uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
+uint8_t rn4871UartTxAPI(char *pBuffer, uint16_t *bufferSize) {
     assert((NULL != pBuffer) || (NULL != bufferSize));
 	//printf("[TX:%d] %s\r\n", *bufferSize, pBuffer);
 
@@ -34,7 +34,7 @@ uint8_t rn4871UartTxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
     return CODE_RETURN_SUCCESS;
 }
 
-uint8_t rn4871UartRxAPI(uint8_t *pBuffer, uint16_t *bufferSize) {
+uint8_t rn4871UartRxAPI(char *pBuffer, uint16_t *bufferSize) {
     assert((NULL != pBuffer) || (NULL != bufferSize));
 	//printf("[RX:%d] %s\r\n", *bufferSize, pBuffer);
 
