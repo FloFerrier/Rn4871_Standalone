@@ -2,7 +2,7 @@
 Dev environment for testing RN4871 library.
 A virtual module is available to allow testing without a hardware material.
 ## Startup
-VSCode IDE with CMake extension.
+VSCode IDE with CMake extension (or in command line).
 Unity is the framework used for testing.
 The first step is to fetch RN4871-driver from Github
 ```bash
@@ -32,11 +32,18 @@ $ git submodule update --init
     ├── CMakeLists.txt
     └── test_main.c
 ```
-## Startup
+## Build and Launch binary file
+### With VSCode
 * Select your build variant : Test/Debug/Release
 * Build your selected target
 * Run the selected target on the terminal
-
+### With Command Line
+```bash
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=<Release Test Debug>
+make
+./../bin/<release debug test>
+```
 ## Roadmap
 - Transparent UART
 - GATT
