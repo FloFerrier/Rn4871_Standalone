@@ -93,7 +93,7 @@ void test_virtualModule(void) {
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "R,1\r\n");
 	virtualModuleReceiveData(input, inputLen);
 	virtualModuleSendData(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\n%cREBOOT%c", '%', '%');
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
@@ -109,7 +109,7 @@ void test_virtualModule(void) {
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "SF,1\r\n");
 	virtualModuleReceiveData(input, inputLen);
 	virtualModuleSendData(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\n%cREBOOT%c", '%', '%');
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "Rebooting\r\nCMD>");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
@@ -169,7 +169,7 @@ void test_virtualModule(void) {
 	inputLen = snprintf(input, BUFFER_LEN_MAX, "---\r\n");
 	virtualModuleReceiveData(input, inputLen);
 	virtualModuleSendData(output, &outputLen);
-	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "AOK\r\nCMD>");
+	expectedOutputLen = snprintf(expectedOutput, BUFFER_LEN_MAX, "END\r\n");
 	TEST_ASSERT_EQUAL_STRING(expectedOutput, output);
 	TEST_ASSERT_EQUAL_UINT16(expectedOutputLen, outputLen);
 
