@@ -59,7 +59,7 @@ uint8_t rn4871UartRxAPI(char *pBuffer, uint16_t *bufferSize) {
 	}
 
 	if (0 >= *bufferSize) {
-      	printf("Fail to receive data: %s\r\n", strerror(errno));
+		//printf("Fail to receive data: bufferSize=%d\r\n", *bufferSize);
 		return CODE_RETURN_UART_FAIL;
   	}
 	//printf("[RX:%d] %s\r\n", *bufferSize, pBuffer);
