@@ -11,6 +11,7 @@
 #include <assert.h>
 
 #define BUFFER_UART_MAX_LEN (255)
+#define BUFFER_LEN_MAX (255)
 
 #define FILENAME_SERIAL_PORT "/dev/ttyUSB0"
 
@@ -171,13 +172,22 @@ int main (void) {
 		printf("New device name is not setting correctly ...\r\n");
 	}
 
-	char firmwareVersion[256] = "";
+	char firmwareVersion[BUFFER_LEN_MAX+1] = "";
 	ret = rn4871GetFirmwareVersion(&dev, firmwareVersion);
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail to get firmware version ...%d\r\n", ret);
 	}
 	else {
 		printf("RN4871 module firmware version : %s\r\n", firmwareVersion);
+	}
+
+	char macAddress[BUFFER_LEN_MAX+1] = "";
+	ret = rn4871GetMacAddress(&dev, macAddress);
+	if(CODE_RETURN_SUCCESS != ret) {
+		printf("Fail to get mac address ...%d\r\n", ret);
+	}
+	else {
+		printf("RN4871 module mac address : %s\r\n", macAddress);
 	}
 
 	ret = rn4871SetServices(&dev, DEVICE_INFORMATION | UART_TRANSPARENT);

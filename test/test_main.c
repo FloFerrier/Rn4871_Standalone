@@ -212,7 +212,7 @@ void test_rn4871RebootModule(void) {
 }
 
 void test_rn4871SetDeviceName(void) {
-	char *deviceName = malloc(BUFFER_UART_LEN_MAX);
+	char *deviceName = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	int sizeDeviceName = snprintf(deviceName, BUFFER_UART_LEN_MAX, "test_device_name");
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871SetDeviceName(test_device, deviceName, (size_t)sizeDeviceName));
 	rn4871EnterCommandMode(test_device);
@@ -222,7 +222,7 @@ void test_rn4871SetDeviceName(void) {
 }
 
 void test_rn4871GetDeviceName(void) {
-	char *deviceName = malloc(BUFFER_UART_LEN_MAX);
+	char *deviceName = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871GetDeviceName(test_device, deviceName));
 	rn4871EnterCommandMode(test_device);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871GetDeviceName(test_device, deviceName));
@@ -231,7 +231,7 @@ void test_rn4871GetDeviceName(void) {
 }
 
 void test_rn4871GetFirmwareVersion(void) {
-	char *firmwareVersion = malloc(BUFFER_UART_LEN_MAX);
+	char *firmwareVersion = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871GetFirmwareVersion(test_device, firmwareVersion));
 	rn4871EnterCommandMode(test_device);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871GetFirmwareVersion(test_device, firmwareVersion));
@@ -240,7 +240,7 @@ void test_rn4871GetFirmwareVersion(void) {
 }
 
 void test_rn4871GetMacAddress(void) {
-	char *macAddress = malloc(BUFFER_UART_LEN_MAX);
+	char *macAddress = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_COMMAND_MODE, rn4871GetMacAddress(test_device, macAddress));
 	rn4871EnterCommandMode(test_device);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871GetMacAddress(test_device, macAddress));
@@ -285,32 +285,46 @@ void test_rn4871EraseAllGattServices(void) {
 }
 
 void test_rn4871TransparentUartSendData(void) {
-	char *data = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
-	int dataLen = snprintf(data, BUFFER_LEN_MAX, "Test data to send with transparent UART");
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_STREAMING, rn4871TransparentUartSendData(test_device, data, dataLen));
+	char *sendData = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	char *receivData = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	int sendDataLen = snprintf(sendData, BUFFER_LEN_MAX, "Test data to send with transparent UART");
+	uint16_t receivDataLen = 0;
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_STREAMING, rn4871TransparentUartSendData(test_device, sendData, sendDataLen));
 	virtualModuleConnect(test_device);
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_STREAMING, rn4871TransparentUartSendData(test_device, data, dataLen));
+	rn4871WaitReceivedData(test_device, receivData, &receivDataLen);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_STREAMING, rn4871TransparentUartSendData(test_device, sendData, sendDataLen));
 	virtualModuleStream(test_device);
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871TransparentUartSendData(test_device, data, dataLen));
+	rn4871WaitReceivedData(test_device, receivData, &receivDataLen);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871TransparentUartSendData(test_device, sendData, sendDataLen));
 	virtualModuleDisconnect(test_device);
-	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_STREAMING, rn4871TransparentUartSendData(test_device, data, dataLen));
-	free(data);
+	rn4871WaitReceivedData(test_device, receivData, &receivDataLen);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_NO_STREAMING, rn4871TransparentUartSendData(test_device, sendData, sendDataLen));
+	free(sendData);
+	free(receivData);
 }
 
 void test_rn4871GetFsmState(void) {
+	char *dataRecv = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	uint16_t dataRecvLen = 0;
 	TEST_ASSERT_EQUAL(FSM_STATE_NONE, rn4871GetFsmState());
 	virtualModuleConnect(test_device);
+	rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen);
 	TEST_ASSERT_EQUAL(FSM_STATE_CONNECTED, rn4871GetFsmState());
 	virtualModuleStream(test_device);
+	rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen);
 	TEST_ASSERT_EQUAL(FSM_STATE_STREAMING, rn4871GetFsmState());
 	virtualModuleDisconnect(test_device);
+	rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen);
 	TEST_ASSERT_EQUAL(FSM_STATE_IDLE, rn4871GetFsmState());
+	free(dataRecv);
 }
 
 void test_transparentUartModeScenario1(void) {
+	char *dataRecv = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	char *data = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	uint16_t dataRecvLen = 0;
 	int dataLen = snprintf(data, BUFFER_LEN_MAX, "Test data to send with transparent UART");
-	char *buffer = malloc(BUFFER_UART_LEN_MAX);
+	char *buffer = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
 	char deviceName[] = "test_uart_mode";
 	int sizeDeviceName = strlen(deviceName);
@@ -322,16 +336,21 @@ void test_transparentUartModeScenario1(void) {
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetServices(test_device, DEVICE_INFORMATION | UART_TRANSPARENT));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871RebootModule(test_device));
 	virtualModuleConnect(test_device);
+	rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen);
 	virtualModuleStream(test_device);
+	rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871TransparentUartSendData(test_device, data, dataLen));
 	free(buffer);
+	free(dataRecv);
 	free(data);
 }
 
 void test_transparentUartModeScenario2(void) {
+	char *dataRecv = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	uint16_t dataRecvLen = 0;
 	char *data = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	int dataLen = snprintf(data, BUFFER_LEN_MAX, "Test data to send with transparent UART");
-	char *buffer = malloc(BUFFER_UART_LEN_MAX);
+	char *buffer = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871SetServices(test_device, UART_TRANSPARENT));
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871RebootModule(test_device));
