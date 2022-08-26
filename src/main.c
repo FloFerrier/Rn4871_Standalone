@@ -207,11 +207,17 @@ int main (void) {
 	ret = rn4871EnterCommandMode(&dev);
 	if(CODE_RETURN_SUCCESS != ret) {
 		printf("Fail to enter on command mode ...\r\n");
-		close(serialPort);
-		fclose(log_file);
-		return 0;
+		usleep(100);
+		ret = rn4871EnterCommandMode(&dev);
+		if(CODE_RETURN_SUCCESS != ret) {
+			printf("Fail to enter on command mode ...\r\n");
+			close(serialPort);
+			fclose(log_file);
+			return 0;
+		}
 	}
 	printf("RN4871 is on command mode\r\n");
+
 	bool modeIsTransparentUart = false;
 	ret = rn4871IsOnTransparentUart(&dev, &modeIsTransparentUart);
 	if(CODE_RETURN_SUCCESS != ret) {
@@ -235,25 +241,31 @@ int main (void) {
 	}
 
 	/* Wait connection and streaming by an external device */
-	char *dataToRecv = malloc(sizeof(char)*(255+1));
+	char *dataToRecv = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
 	uint16_t dataToRecvLen = 0;
 	while(FSM_STATE_STREAMING != rn4871GetFsmState()) {
-		dev.uartRx(dataToRecv, &dataToRecvLen);
-		virtualModuleConnect(&dev);
-		virtualModuleStream(&dev);
-		printf("DEBUG FSM state : %d\r\n", rn4871GetFsmState());
+		rn4871WaitReceivedData(&dev, dataToRecv, &dataToRecvLen);
+		printf("[%d] %s\r\n", dataToRecvLen, dataToRecv);
+		/* TODO
+		if(VIRTUAL_MODULE) {
+			virtualModuleConnect(&dev);
+			virtualModuleStream(&dev);
+		}*/
 	}
-	free(dataToRecv);
+	printf("DEBUG FSM state : %d\r\n", rn4871GetFsmState());
 
-	char *dataToSend = malloc(sizeof(char)*(255+1));
-	int sizeToSend = snprintf(dataToSend, 255, "Test data to send");
+	char *dataToSend = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	int sizeToSend = snprintf(dataToSend, BUFFER_LEN_MAX, "Data send by server module");
 	if(CODE_RETURN_SUCCESS != rn4871TransparentUartSendData(&dev, dataToSend, sizeToSend)) {
 		printf("Error to transmit data through transparent uart ...\r\n");
 	}
 	else {
 		printf("Success to transmit data through transparent uart !\r\n");
 	}
+	rn4871WaitReceivedData(&dev, dataToRecv, &dataToRecvLen);
+	printf("[%d] %s\r\n", dataToRecvLen, dataToRecv);
 
+	free(dataToRecv);
 	free(dataToSend);
 	close(serialPort);
 	fclose(log_file);
