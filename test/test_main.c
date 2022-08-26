@@ -1,7 +1,7 @@
 #include "unity.h"
-#include "rn4871.h"
+#include "rn4871_api.h"
 #include "virtual_module.h"
-#include "logs.h"
+#include "rn4871_logger.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -178,6 +178,20 @@ void test_virtualModule(void) {
 	free(expectedOutput);
 }
 
+void test_rn4871WaitReceivedData(void) {
+	char *dataRecv = malloc(sizeof(char)*(BUFFER_LEN_MAX+1));
+	uint16_t dataRecvLen = 0;
+	virtualModuleConnect(test_device);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen));
+	TEST_ASSERT_EQUAL_STRING(dataRecv, "\%CONNECT,0,AABBCCDDEEFF\%");
+	virtualModuleStream(test_device);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen));
+	TEST_ASSERT_EQUAL_STRING(dataRecv, "\%STREAM_OPEN\%");
+	virtualModuleDisconnect(test_device);
+	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen));
+	TEST_ASSERT_EQUAL_STRING(dataRecv, "\%DISCONNECT\%");
+}
+
 void test_rn4871EnterCommandMode(void) {
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871EnterCommandMode(test_device));
 }
@@ -327,15 +341,19 @@ void test_transparentUartModeScenario2(void) {
 	TEST_ASSERT_EQUAL_UINT8(true, result);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871QuitCommandMode(test_device));
 	virtualModuleConnect(test_device);
+	rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen);
 	virtualModuleStream(test_device);
+	rn4871WaitReceivedData(test_device, dataRecv, &dataRecvLen);
 	TEST_ASSERT_EQUAL_UINT8(CODE_RETURN_SUCCESS, rn4871TransparentUartSendData(test_device, data, dataLen));
 	free(buffer);
 	free(data);
+	free(dataRecv);
 }
 
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_virtualModule);
+	RUN_TEST(test_rn4871WaitReceivedData);
 	RUN_TEST(test_rn4871EnterCommandMode);
 	RUN_TEST(test_rn4871RebootModule);
 	RUN_TEST(test_rn4871QuitCommandMode);
