@@ -1,33 +1,36 @@
-set(TEST_SOURCES
-	test_main.c)
+set(TARGET "Rn4871")
 
-include(FetchContent)
-# Fetch Unity from GitHub
-FetchContent_Declare(unity GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git GIT_TAG v2.5.2)
-FetchContent_MakeAvailable(unity)
+set(TEST_TARGET "${CMAKE_BUILD_TYPE}_${TARGET}" CACHE INTERNAL "")
 
-# Set if you want use virtual module (true or false)
-set(VIRTUAL_MODULE true)
-
-# Set your log granularity for RN4871 driver
-set(RN4871_LOG_ENABLE 0x7)
-
-add_executable(${BUILD_TYPE} ${TEST_SOURCES})
-
-set_target_properties(${BUILD_TYPE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BINARY_DIR}")
-
-add_test(NAME ${BUILD_TYPE} COMMAND ${BUILD_TYPE})
-
-target_link_libraries(${BUILD_TYPE} PUBLIC librn4871-driver unity)
-
-target_compile_definitions(librn4871-driver PRIVATE
-	RN4871_LOG_ENABLE=${RN4871_LOG_ENABLE}
+include_directories(
+    ${CMAKE_SOURCE_DIR}/lib/rn4871-driver
 )
 
-set_target_properties(librn4871-driver PROPERTIES COMPILE_FLAGS "--coverage")
-set_target_properties(librn4871-driver PROPERTIES LINK_FLAGS "--coverage")
+add_executable(${TEST_TARGET}
+    main_test.c
+    test_rn4871.c
+    test_virtual_module.c
+    mock_rn4871.c
 
-set_target_properties(${BUILD_TYPE} PROPERTIES COMPILE_FLAGS "--coverage")
-set_target_properties(${BUILD_TYPE} PROPERTIES LINK_FLAGS "--coverage")
+    ${CMAKE_SOURCE_DIR}/lib/rn4871-driver/rn4871_core.c
+    ${CMAKE_SOURCE_DIR}/lib/rn4871-driver/rn4871_logger.c
+    ${CMAKE_SOURCE_DIR}/lib/rn4871-driver/virtual_module.c
+)
 
-target_compile_definitions(${BUILD_TYPE} PRIVATE VIRTUAL_MODULE=${VIRTUAL_MODULE})
+target_compile_definitions(${TEST_TARGET} PRIVATE
+	-DVIRTUAL_MODULE
+    RN4871_LOG_ENABLE=0x0
+)
+
+target_compile_options(${TEST_TARGET} PRIVATE
+    --coverage
+)
+
+target_link_options(${TEST_TARGET} PRIVATE
+    --coverage
+)
+
+target_link_libraries(${TEST_TARGET} PRIVATE rn4871-driver cmocka-static)
+
+enable_testing()
+add_test(NAME ${TEST_TARGET} COMMAND ${TEST_TARGET})

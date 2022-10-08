@@ -27,6 +27,8 @@ elseif(CMAKE_BUILD_TYPE STREQUAL Release)
 	message(INFO " Release selected.")
 
 elseif(CMAKE_BUILD_TYPE STREQUAL Test)
+	include(CTest)
+	include(cmake/cmocka.cmake)
 	set(BUILD_TYPE test)
 	include_directories(${TEST_DIR})
 	add_subdirectory(${TEST_DIR})
