@@ -1,5 +1,4 @@
 #include "rn4871_api.h"
-#include "virtual_module.h"
 
 #include <stdlib.h>
 #include <stdio.h>
