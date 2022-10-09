@@ -1,38 +1,23 @@
-cmake_minimum_required(VERSION 3.16)
-project(framework-test-c)
+cmake_minimum_required(VERSION 3.20)
+project(RN4871_Standalone)
 
 set(CMAKE_C_STANDARD 99)
 
-set(BINARY_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-set(SOURCE_DIR  ${CMAKE_SOURCE_DIR}/src)
-set(TEST_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/test)
-set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-set(LOGS_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/logs)
-
-include_directories(${LIBRARY_DIR}/rn4871-driver)
-add_subdirectory(${LIBRARY_DIR}/rn4871-driver)
-
-message(INFO " CMAKE_BUILD_TYPE= ${CMAKE_BUILD_TYPE}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(LOGS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/logs)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
-	set(BUILD_TYPE debug)
-	include_directories(${SOURCE_DIR})
-	add_subdirectory(${SOURCE_DIR})
-	message(INFO " Debug selected.")
-
+	include_directories(lib/rn4871-driver)
+	add_subdirectory(lib/rn4871-driver)
+	add_subdirectory(src)
 elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-	set(BUILD_TYPE release)
-	include_directories(${SOURCE_DIR})
-	add_subdirectory(${SOURCE_DIR})
-	message(INFO " Release selected.")
-
+	include_directories(lib/rn4871-driver)
+	add_subdirectory(lib/rn4871-driver)
+	add_subdirectory(src)
 elseif(CMAKE_BUILD_TYPE STREQUAL Test)
-	set(BUILD_TYPE test)
-	#include_directories(${TEST_DIR})
-	#add_subdirectory(${TEST_DIR})
-	message(INFO " Test selected.")
-
+	set(RN4871_UTEST TRUE)
+	include_directories(lib/rn4871-driver)
+	add_subdirectory(lib/rn4871-driver)
 else()
 	message(ERROR " Specify CMAKE_BUILD_TYPE as Debug, Test or Release")
-
 endif()
