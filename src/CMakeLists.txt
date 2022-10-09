@@ -1,3 +1,5 @@
+include_directories(${CMAKE_SOURCE_DIR}/lib/rn4871-driver/Core/inc)
+
 set(SOURCE_FILES
 	./main.c)
 
@@ -6,15 +8,12 @@ set(VIRTUAL_MODULE false)
 
 set(LOG_FILE_NAME "${LOGS_DIR}/main.log")
 
-# Set your log granularity for RN4871 driver
-set(RN4871_LOG_ENABLE 0x7)
-
 add_executable(${BUILD_TYPE} ${SOURCE_FILES})
 
-target_link_libraries(${BUILD_TYPE} PRIVATE librn4871-driver)
+target_link_libraries(${BUILD_TYPE} PRIVATE rn4871-driver)
 
-target_compile_definitions(librn4871-driver PRIVATE
-	RN4871_LOG_ENABLE=${RN4871_LOG_ENABLE}
+target_compile_definitions(rn4871-driver PRIVATE
+	RN4871_LOG_ENABLE=0x7
 )
 
 set_target_properties(${BUILD_TYPE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BINARY_DIR}")
